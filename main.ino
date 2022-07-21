@@ -1,7 +1,3 @@
-/*********
-  Rui Santos
-  Complete project details at https://RandomNerdTutorials.com
-*********/
 
 // Import required libraries
 #ifdef ESP32
@@ -27,7 +23,6 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
 // Variables to store temperature values
-String temperatureF = "";
 String temperatureC = "";
 
 // Timer variables
@@ -56,26 +51,13 @@ String readDSTemperatureC() {
   return String(tempC);
 }
 
-String readDSTemperatureF() {
-  // Call sensors.requestTemperatures() to issue a global temperature and Requests to all devices on the bus
-  sensors.requestTemperatures();
-  float tempF = sensors.getTempFByIndex(0);
-
-  if (int(tempF) == -196) {
-    Serial.println("Failed to read from DS18B20 sensor");
-    return "--";
-  } else {
-    Serial.print("Temperature Fahrenheit: ");
-    Serial.println(tempF);
-  }
-  return String(tempF);
-}
-
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML><html>
 <head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <script src="https://kit.fontawesome.com/2b3183bb95.js" crossorigin="anonymous"></script>
   <style>
     html {
      font-family: Arial;
@@ -94,21 +76,16 @@ const char index_html[] PROGMEM = R"rawliteral(
   </style>
 </head>
 <body>
-  <h2>ESP DS18B20 Server</h2>
+  <h2>  <i class="fa-solid fa-fish-fins" style="color:#059e8a;"></i>  AQUÁRIO  <i class="fa-solid fa-fish-fins" style="color:#059e8a;"></i>  </h2>
+ 
   <p>
     <i class="fas fa-thermometer-half" style="color:#059e8a;"></i> 
-    <span class="ds-labels">Temperature Celsius</span> 
+    <span class="ds-labels">Temperatura Atual:</span> 
     <span id="temperaturec">%TEMPERATUREC%</span>
     <sup class="units">&deg;C</sup>
   </p>
-  <p>
-    <i class="fas fa-thermometer-half" style="color:#059e8a;"></i> 
-    <span class="ds-labels">Temperature Fahrenheit</span>
-    <span id="temperaturef">%TEMPERATUREF%</span>
-    <sup class="units">&deg;F</sup>
-  </p>
-    <span id="valBox"></span>
-    <input type="range" min="1" max="100" value="50" onchange="showVal(this.value)">
+    <span class="ds-labels" id="valBox"></span>
+    <input type="range" min="20.0" max="40.0" value="20.0" step="0.25" onchange="showVal(this.value)">
 </body>
 <script language = "JavaScript">
 function showVal(newVal){
@@ -127,16 +104,6 @@ setInterval(function ( ) {
   xhttp.open("GET", "/temperaturec", true);
   xhttp.send();
 }, 2000) ;
-setInterval(function ( ) {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      document.getElementById("temperaturef").innerHTML = this.responseText;
-    }
-  };
-  xhttp.open("GET", "/temperaturef", true);
-  xhttp.send();
-}, 2000) ;
 
 </script>
 </html>)rawliteral";
@@ -146,9 +113,6 @@ String processor(const String& var) {
   //Serial.println(var);
   if (var == "TEMPERATUREC") {
     return temperatureC;
-  }
-  else if (var == "TEMPERATUREF") {
-    return temperatureF;
   }
   return String();
 }
@@ -162,7 +126,6 @@ void setup() {
   sensors.begin();
 
   temperatureC = readDSTemperatureC();
-  temperatureF = readDSTemperatureF();
 
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
@@ -183,20 +146,17 @@ void setup() {
   server.on("/temperaturec", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send_P(200, "text/plain", temperatureC.c_str());
   });
-  server.on("/temperaturef", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send_P(200, "text/plain", temperatureF.c_str());
-  });
-   server.on("/post",HTTP_POST,[](AsyncWebServerRequest * request){},
-    NULL,
-    [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
- 
-      for (size_t i = 0; i < len; i++) {
-        Serial.write(data[i]);
-      }
- 
-      Serial.println();
- 
-      request->send(200);
+  server.on("/post", HTTP_POST, [](AsyncWebServerRequest * request) {},
+  NULL,
+  [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
+
+    for (size_t i = 0; i < len; i++) {
+      Serial.write(data[i]);
+    }
+
+    Serial.println();
+
+    request->send(200);
   });
 
   // Start server
@@ -206,7 +166,6 @@ void setup() {
 void loop() {
   if ((millis() - lastTime) > timerDelay) {
     temperatureC = readDSTemperatureC();
-    temperatureF = readDSTemperatureF();
     lastTime = millis();
   }
 }
