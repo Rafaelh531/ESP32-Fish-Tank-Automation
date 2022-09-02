@@ -7,8 +7,6 @@ O controle é feito utilizando o conceito de histerese em 0.5° C.<br><br>
 
 ## Montagem:
 
-![alt text](https://github.com/Rafaelh531/ESP32-Fish-Tank-Automation/blob/main/IMG-20220902-WA0004.jpg?raw=true)
+<img src=https://github.com/Rafaelh531/ESP32-Fish-Tank-Automation/blob/main/IMG-20220902-WA0004.jpg width="800" height="600" />
 
-![alt text](https://github.com/Rafaelh531/ESP32-Fish-Tank-Automation/blob/main/IMG-20220902-WA0000.jpg?raw=true)
-
-
+<img src=https://github.com/Rafaelh531/ESP32-Fish-Tank-Automation/blob/main/IMG-20220902-WA0000.jpg width="800" height="600" />
